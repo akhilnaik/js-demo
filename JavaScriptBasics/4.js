@@ -48,6 +48,7 @@ class SortObjectArray extends SortArray {
 
 /*Usage*/
 let sorter = new SortArray([10,9,3,6,7,1,4,8,2,5,0]);
+console.log(`Array sorted by value`)
 console.dir(sorter.getSortedArray())
 
 const inputArray = [
@@ -70,4 +71,6 @@ const inputArray = [
   ]
 
 let sorter2 = new SortObjectArray(inputArray);
-console.dir(sorter2.getSortedArray("name"))
+let key = "name"
+console.log(`Array sorted by the key '${key}'`)
+console.dir(sorter2.getSortedArray(key))

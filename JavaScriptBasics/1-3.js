@@ -1,6 +1,7 @@
 /*Create an Object Person with Object literals
 The Object should have firstName, lastName and age properties*/
 let person = {firstName: 'Foo', lastName: 'Bar', age: 30}
+console.log('Person object', person)
 
 /*Create an Object MetadataParser using constructor functions
 The Object should have private properties _version, _channel, _keyField 
@@ -46,11 +47,10 @@ class ObjectMetaDataParser {
 /*Write a function groupObjectsBy which takes as an input an array of JSON objects and returns a grouped object by a key.*/
 function groupObjectsBy(objs, keyName) {
     let groupedObj = objs.reduce(function(resultObj, currentObj) {
-        const valInObj = currentObj[keyName];
-        if(valInObj !== undefined)
-        {
-            if(resultObj.hasOwnProperty(valInObj)) resultObj[valInObj].push(currentObj);
-            else { resultObj[valInObj] = [currentObj]; }
+        if(currentObj.hasOwnProperty(keyName)) {
+              const valInObj = currentObj[keyName]
+              if(resultObj.hasOwnProperty(valInObj)) resultObj[valInObj].push(currentObj);
+              else { resultObj[valInObj] = [currentObj]; }
         }
         return resultObj
     }, {})
@@ -77,13 +77,17 @@ const inputArray = [
     }
   ]
 
-let result = groupObjectsBy(inputArray, 'channel')
-console.log(result)
+let groupingKey = 'channel'
+let result = groupObjectsBy(inputArray, groupingKey)
+console.log(`Grouped by key '${groupingKey}':`)
+console.dir(result)
 
 let parser = new ObjectMetaDataParser()
-parser.setKeyField("name")
+groupingKey = 'name'
+parser.setKeyField(groupingKey)
 result = parser.getKeyFields(inputArray)
-console.log(result)
+console.log(`List of values for the key '${groupingKey}':`)
+console.dir(result)
 
 
 

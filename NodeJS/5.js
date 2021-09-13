@@ -21,7 +21,7 @@ class XmlParser {
 };
 
 const parser = new XmlParser();
-parser.parseXMLFile({filePath: './data-custom.xml'})
+parser.parseXMLFile({filePath: './data.xml'})
         .then((res)=>{
             console.log("Parsed Object => ");
             console.dir(res, {depth:null});

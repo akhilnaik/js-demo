@@ -7,7 +7,7 @@ function downloadUrlToFile(url, filepath) {
         if(res && res.statusCode === 200) {
             try {
                 fs.writeFileSync(filepath, body)
-                console.log(`written [${url}] to [${filepath}]`)
+                console.log(`Finished writing [${url}] to file [${filepath}]`)
             } catch(err) {
                 console.log(`Error writing to filesystem [${err}]`)
             }

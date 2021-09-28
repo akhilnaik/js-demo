@@ -1,5 +1,5 @@
-let dataContext = { 
-    product : 
+let dataContext = {
+    product :
         [
             {
             "baseId": "1",
@@ -75,7 +75,7 @@ let dataContext = {
             ]
             }
         ]
-}  
+}
 
 let templ = `
 <products>
@@ -126,7 +126,7 @@ let templ = `
                 {{/if}}
             </childProduct>
             {{/each}}
-        </childProducts>
+        </childProducts><ll
         {{/if}}
     </product>
 {{/each}}

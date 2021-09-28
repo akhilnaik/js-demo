@@ -1,4 +1,4 @@
-const parseXMLData = require('xml2js').parseStringPromise;
+const parseXMLData = require('xml2js').parseString;
 const fs = require('fs');
 
 class XmlParser {
@@ -6,26 +6,29 @@ class XmlParser {
     constructor() {
     }
 
-    parseXMLFile = async ({filePath}) => {
-        let xmlData = {};
+    parseXMLFile = (filePath, successCb, errorCb) => {
         try {
-            const fileContent = fs.readFileSync(filePath, {encoding: 'utf8'})
-            xmlData = await parseXMLData(fileContent)
+          const fileContent = fs.readFileSync(filePath, {encoding: 'utf8'})
+          parseXMLData(fileContent, function(err, result){
+                                                  if(err) {
+                                                    errorCb(err)
+                                                  }
+                                                  else {
+                                                    successCb(result)
+                                                  }
+                                                })
         }
-        catch (error) {
-            console.log('Error reading file')
-            throw error
+        catch(err) {
+          console.log(`Failed to read XML file ${filePath}`)
+          return err
         }
-        return xmlData;
     }
 };
 
 const parser = new XmlParser();
-parser.parseXMLFile({filePath: './data.xml'})
-        .then((res)=>{
-            console.log("Parsed Object => ");
-            console.dir(res, {depth:null});
-        })
-        .catch(()=>{
-            console.log("Promise rejected")
-        })
+parser.parseXMLFile('./data.xml', (result)=>{
+  console.log('Succeeded to create object from XML')
+  console.dir(result, {depth: null})
+}, (err) => {
+  console.log(`Failed to create object from XML. ${err}`)
+})

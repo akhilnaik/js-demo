@@ -16,6 +16,7 @@ class UrlShortener {
 
   #writeRowToCSV = (long_url, short_url) => {
     stringifyToCSV([[long_url, short_url]], (error, converted_text) => {
+      if(error) throw error
       this.#writeStream.write(converted_text)
       this.#pendingRows--;
       if (this.#pendingRows === 0) {
@@ -29,18 +30,24 @@ class UrlShortener {
     this.#writeStream = fs.createWriteStream(out_file, {flags:'a'})
     this.#pendingRows = url_list.length
     this.#pendingCb = result_cb
-    this.#writeStream.write('Long URL, short URL\n')
-    if (this.#pendingRows === 0) {
-      this.#writeStream.end()
-      this.#pendingCb.call()
-    }
+    try {
+      this.#writeStream.write('Long URL, short URL\n')
+      if (this.#pendingRows === 0) {
+        this.#writeStream.end()
+        this.#pendingCb.call()
+      }
 
-    url_list.map((current_url, index) => {
-      this.#bitlyClient.shorten(current_url).then((short_url)=>{
-        console.log(`shortened [${current_url}] => [${short_url.link}]`)
-        this.#writeRowToCSV(current_url, short_url.link)
+      url_list.map((current_url, index) => {
+        this.#bitlyClient.shorten(current_url).then((short_url)=>{
+          console.log(`shortened [${current_url}] => [${short_url.link}]`)
+          this.#writeRowToCSV(current_url, short_url.link)
+        })
       })
-    })
+    }
+    catch(err) {
+      this.#pendingCb.call(err)
+    }
+    
   }
 };
 
@@ -58,7 +65,8 @@ const url_list = [
 
 
 const csv_file = 'urls.csv'
-let shortener = new UrlShortener({bitlyKey: 'yourBitlyKey'});
-shortener.shortenUrls(url_list, csv_file, function(){
-  console.log(`finished writing to csv [${csv_file}]`);
+let shortener = new UrlShortener({bitlyKey: 'a064e3039ea1da5dbc56e2fd88281556171160d3'});
+shortener.shortenUrls(url_list, csv_file, (err) => {
+  if(err) console.log(err)
+  else console.log(`finished writing to csv [${csv_file}]`);
 });

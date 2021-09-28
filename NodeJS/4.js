@@ -13,58 +13,61 @@ For the list of images above, make sure to not save more than 5 image in a folde
 */
 const request = require("request")
 const fs = require("fs")
+const async = require("async")
 
 class ImageDownloader {
     #destinationFolderPrefix;
-    #fileCounter;
-    #folderCounter;
-    #filesToWait;
-    #downloadPromise;
 
     constructor() {
         this.#destinationFolderPrefix = "./"
-        this.#fileCounter = 0;
-        this.#folderCounter = 0;
-        this.#filesToWait = 0;
     }
 
-    #writeFile = (err, response, data) => {
-        if (response.statusCode === 200) {
-            if (response.headers['content-type'] === 'image/jpeg') {
-            
-                let folder = `${this.#destinationFolderPrefix}${this.#folderCounter}`
-                if((this.#fileCounter-1)%5 === 0) {
-                    this.#folderCounter++;
-                    folder = `${this.#destinationFolderPrefix}${this.#folderCounter}`
+    downloadImages = (urls, resultCb) => {
+        let counter = 0;
+
+        async.forEachOf(urls, (url, index, callback) => {
+            console.log(`Index at [${index}]`)
+            request.get(url, {encoding: null}, (error, response, data) => {
+
+              if (error) {
+                callback(error)
+                return;
+              }
+
+              if(index === 0 || index === 4) {
+                  let gg = 78;
+              }
+
+              if (response.statusCode === 200) {
+                if (response.headers['content-type'] === 'image/jpeg') {
                     try {
-                        fs.mkdirSync(folder)
+                        let folder = `${this.#destinationFolderPrefix}${Math.floor(counter/5)+1}`
+                        let filename = `${folder}/${index}.jpg`
+                        if (counter%5 === 0) {
+                            counter++
+                            fs.mkdirSync(folder)
+                        }
+                        else {
+                            counter++;
+                        }
+                        fs.writeFileSync(filename, data)
+                        console.log(`[${index}] Written file ${filename} from url[${response.request.uri.href}]`)
                     }
-                    catch (err) { console.log(`[Warning] failed to create folder ${folder} => ${err}`)}
+                    catch(err) {
+                        callback(err)
+                        return;
+                    }
+                    callback();
                 }
-    
-                const filename = `${folder}/${this.#fileCounter}.jpg`
-                try {
-                    fs.writeFileSync(filename, data)
-                    this.#fileCounter++;
-                    console.log(`Written file ${filename} from url[${response.request.uri.href}]`)
-                } catch(err) {
-                    console.log(`[Error] writing file ${filename} ${err}`)
+                else {
+                    callback(`Incompatible file format. Format [${response.headers['content-type']}] => [${url}]`)
                 }
             }
-        }
-        this.#filesToWait--;
-        if(this.#filesToWait == 0) {
-            this.#downloadPromise()
-        }
-    }
-
-    downloadImages = (urls) => {
-        this.#fileCounter = 1;
-        this.#folderCounter = 0;
-        let retval = new Promise((resolve, reject) => { this.#downloadPromise = resolve });
-        this.#filesToWait = urls.length;
-        urls.map((url)=>{ request.get(url, {encoding: null}, this.#writeFile) })
-        return retval
+            else {
+                callback(`Error accessing url. Status code [${response.statusCode}] => [${url}]`)
+            }
+          })
+        }, resultCb)
     }
 }
 
@@ -79,4 +82,7 @@ let inputdata = ['http://sousmonarbre.com/qphj/bd963843d2239ed78aa6f7b0a36b537d/
 'https://media.glassdoor.com/l/e9/c1/7a/84/independence-day-celebration.jpg']
 
 const gg = new ImageDownloader();
-gg.downloadImages(inputdata).then(()=>{console.log("All files downloaded")})
+gg.downloadImages(inputdata, (err) => {
+  if (err) console.log(err)
+  else console.log("File downloaded")
+})

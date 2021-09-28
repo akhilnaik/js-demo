@@ -1,18 +1,24 @@
 const request = require('request')
 const fs = require('fs')
 
-function downloadUrlToFile(url, filepath) {
-    request(url, function (err, res, body) {
-        if(err !== null) return;
-        if(res && res.statusCode === 200) {
-            try {
-                fs.writeFileSync(filepath, body)
-                console.log(`Finished writing [${url}] to file [${filepath}]`)
-            } catch(err) {
-                console.log(`Error writing to filesystem [${err}]`)
-            }
-        }
+function downloadUrlToFile(url, filepath, successCb, errorCb) {
+  try {
+    const ee = request.get(url)
+    ee.on('error', function(error) {
+      errorCb(err)
+    }).pipe(fs.createWriteStream(filepath))
+
+    ee.on('response', function(response) {
+      successCb(response.statusCode)
     })
+  }
+  catch(err) {
+    errorCb(err)
+  }
 }
 
-downloadUrlToFile('https://google.com/', 'google.html')
+downloadUrlToFile('https://google.com/', 'google.html', (result)=>{
+  console.log(result)
+}, (err)=>{
+  console.error(err)
+})

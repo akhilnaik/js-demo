@@ -10,17 +10,13 @@ class XmlParser {
         try {
           const fileContent = fs.readFileSync(filePath, {encoding: 'utf8'})
           parseXMLData(fileContent, function(err, result){
-                                                  if(err) {
-                                                    errorCb(err)
-                                                  }
-                                                  else {
-                                                    successCb(result)
-                                                  }
-                                                })
+                                          if(err) errorCb(err)
+                                          else successCb(result)
+                                        })
         }
         catch(err) {
           console.log(`Failed to read XML file ${filePath}`)
-          return err
+          errorCb(err)
         }
     }
 };

@@ -5,7 +5,6 @@ class XmlParser {
 
     constructor() {
     }
-
     parseXMLFile = (filePath, successCb, errorCb) => {
         try {
           const fileContent = fs.readFileSync(filePath, {encoding: 'utf8'})
